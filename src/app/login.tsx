@@ -23,31 +23,38 @@ export default function Login() {
   const [err, setErr] = useState("");
 
   async function onLogin() {
-    if (!username.trim() || !password.trim()) {
+    const cleanUsername = username.trim();
+
+    if (!cleanUsername || !password) {
       setErr("Username dan password wajib diisi.");
       return;
     }
+
     setErr("");
     setLoading(true);
+
     try {
-      const res = await login(username.trim(), password.trim());
-      // GAS returns { success, token?/message } — ponytail: assume token field is `token` or `data.token`
-      if (res?.success) {
-        const token = res.data?.token ?? `${username.trim()}:${Date.now()}`;
-        await saveToken(String(token));
+      const res = await login(cleanUsername, password);
+      if (res?.success && res?.data?.token) {
+        await saveToken(String(res.data.token));
         router.replace("/");
+        return;
       } else {
         setErr(res?.message ?? "Login gagal. Periksa kredensial.");
       }
-    } catch (e: any) {
-      setErr(e?.message ?? "Tidak terhubung ke server.");
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        setErr(e?.message);
+      } else {
+        setErr("Tidak terhubung ke server.");
+      }
     } finally {
       setLoading(false);
     }
   }
 
   const canSubmit =
-    username.trim().length > 0 && password.trim().length > 0 && !loading;
+    username.trim().length > 0 && password.length > 0 && !loading;
 
   return (
     <View className="flex-1 bg-white">

@@ -1,6 +1,45 @@
-import "../../../global.css";
-import { Stack } from "expo-router";
+import { Stack, Redirect } from "expo-router";
+import { ActivityIndicator, View } from "react-native";
+import { useEffect, useState } from "react";
 
-export default function RootLayout() {
-  return <Stack screenOptions={{ headerShown: false }} />;
+import { getToken } from "../../../lib/auth";
+
+export default function AppLayout() {
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const token = await getToken();
+        setAuthenticated(!!token);
+      } catch (error) {
+        console.error("Auth check error:", error);
+        setAuthenticated(false);
+      } finally {
+        setCheckingAuth(false);
+      }
+    }
+    checkAuth();
+  }, []);
+
+  if (checkingAuth) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (!authenticated) {
+    return <Redirect href="/login" />;
+  }
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    />
+  );
 }
