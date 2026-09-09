@@ -12,7 +12,7 @@ import {
   View,
 } from "react-native";
 import { login } from "../../lib/api";
-import { saveToken } from "../../lib/auth";
+import { saveToken, saveUser } from "../../lib/auth";
 
 export default function Login() {
   const router = useRouter();
@@ -37,6 +37,7 @@ export default function Login() {
       const res = await login(cleanUsername, password);
       if (res?.success && res?.data?.token) {
         await saveToken(String(res.data.token));
+        await saveUser(res.data.user);
         router.replace("/");
         return;
       } else {
@@ -57,7 +58,7 @@ export default function Login() {
     username.trim().length > 0 && password.length > 0 && !loading;
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-background">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1"
@@ -82,11 +83,11 @@ export default function Login() {
               <Text className="text-sm text-muted-foreground">
                 BPS Kabupaten Konawe
               </Text>
-              <View className="mt-1 h-1 w-10 rounded-full bg-[#0d49a9]" />
+              <View className="mt-1 h-1 w-10 rounded-full bg-[#307362]" />
             </View>
 
             {/* card */}
-            <View className="rounded-[28px] bg-linear-to-br from-[#092055] via-[#0d49a9] to-[#1763db] border border-border p-6 gap-5">
+            <View className="rounded-[28px] bg-linear-to-br from-[#0B2B26] to-[#307362] border border-border p-6 gap-5">
               <View className="gap-1">
                 <Text className="text-[11px] font-semibold tracking-widest text-white">
                   MASUK
